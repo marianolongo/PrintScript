@@ -3,14 +3,14 @@ package token.impl;
 import token.Token;
 import token.type.TokenType;
 
-public class TokenImpl implements Token {
+class TokenImpl implements Token {
 
     private TokenType type;
     private Integer line;
     private String lexeme;
     private Object literal;
 
-    public TokenImpl(TokenType type, Integer line, String lexeme, Object literal) {
+    TokenImpl(TokenType type, Integer line, String lexeme, Object literal) {
         this.type = type;
         this.line = line;
         this.lexeme = lexeme;

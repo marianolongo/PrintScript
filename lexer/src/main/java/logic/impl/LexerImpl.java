@@ -3,6 +3,7 @@ package logic.impl;
 import exceptions.LexerException;
 import logic.Lexer;
 import token.Token;
+import token.impl.TokenBuilder;
 import token.impl.TokenImpl;
 import token.type.TokenType;
 
@@ -51,7 +52,7 @@ public class LexerImpl implements Lexer {
             start = current;
             scanToken();
         }
-        tokens.add(new TokenImpl(EOF, line, "", null));
+        tokens.add(TokenBuilder.createToken(EOF, line, "", null));
         return tokens;
     }
 
@@ -114,7 +115,7 @@ public class LexerImpl implements Lexer {
 
     private void addToken(TokenType type, Object literal) {
         String text = source.substring(start, current);
-        tokens.add(new TokenImpl(type, line, text, literal));
+        tokens.add(TokenBuilder.createToken(type, line, text, literal));
     }
 
     private boolean match(char expected) {
