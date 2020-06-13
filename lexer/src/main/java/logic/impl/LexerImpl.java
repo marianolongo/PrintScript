@@ -4,7 +4,6 @@ import exceptions.LexerException;
 import logic.Lexer;
 import token.Token;
 import token.impl.TokenBuilder;
-import token.impl.TokenImpl;
 import token.type.TokenType;
 
 import static token.type.TokenType.*;
