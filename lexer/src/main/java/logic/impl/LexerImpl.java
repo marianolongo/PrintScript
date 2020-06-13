@@ -51,7 +51,13 @@ public class LexerImpl implements Lexer {
             start = current;
             scanToken();
         }
-        tokens.add(TokenBuilder.createToken(EOF, line, "", null));
+        tokens.add(
+                TokenBuilder.createBuilder()
+                .addType(EOF)
+                .addLine(line)
+                .addLexeme("")
+                .addLiteral(null)
+                .buildToken());
         return tokens;
     }
 
@@ -114,7 +120,14 @@ public class LexerImpl implements Lexer {
 
     private void addToken(TokenType type, Object literal) {
         String text = source.substring(start, current);
-        tokens.add(TokenBuilder.createToken(type, line, text, literal));
+        tokens.add(
+                TokenBuilder
+                        .createBuilder()
+                        .addType(type)
+                        .addLine(line)
+                        .addLexeme(text)
+                        .addLiteral(literal)
+                        .buildToken());
     }
 
     private boolean match(char expected) {
