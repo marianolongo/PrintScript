@@ -9,7 +9,7 @@ public class TokenImpl implements Token {
     private Integer line;
     private String lexeme;
     private Object literal;
-    
+
     public TokenImpl(TokenType type, Integer line, String lexeme, Object literal) {
         this.type = type;
         this.line = line;
