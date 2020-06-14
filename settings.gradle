@@ -1,3 +1,4 @@
 rootProject.name = 'PrintScript'
 include 'lexer'
+include 'parser'
 
