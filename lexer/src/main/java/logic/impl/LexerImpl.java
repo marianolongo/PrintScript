@@ -24,11 +24,12 @@ public class LexerImpl implements Lexer {
     private int current = 0;
     private int line = 1;
 
-    private static final Map<String, TokenType> keywords;
+    private final Map<String, TokenType> keywords = createKeywords();
 
     private String source;
-    static {
-        keywords = new HashMap<>();
+
+    private HashMap<String, TokenType> createKeywords(){
+        HashMap<String, TokenType> keywords = new HashMap<>();
         keywords.put("import", IMPORT);
         keywords.put("else",   ELSE);
         keywords.put("if",     IF);
@@ -40,8 +41,8 @@ public class LexerImpl implements Lexer {
         keywords.put("string",  STRING);
         keywords.put("boolean",  BOOLEAN);
         keywords.put("number",  NUMBER);
+        return keywords;
     }
-
     public LexerImpl() {
 
     }
