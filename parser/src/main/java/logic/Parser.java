@@ -1,10 +1,11 @@
 package logic;
 
-import statement.Statement;
+import exception.ParserException;
+import expression.Expression;
 import token.Token;
 
 import java.util.List;
 
 public interface Parser {
-    List<Statement> parse(List<Token> tokens);
+    Expression parse(List<Token> tokens) throws ParserException;
 }
