@@ -86,7 +86,7 @@ public class LexerImpl implements Lexer {
             case '/':
                 if (match('/')) {
                     // A comment goes until the end of the line.
-                    while (peek() != '\n' && !isAtEnd()) advance();
+                    while (getCurrentChar() != '\n' && !isAtEnd()) advance();
                 } else {
                     addToken(SLASH);
                 }
@@ -142,14 +142,14 @@ public class LexerImpl implements Lexer {
         return true;
     }
 
-    private char peek() {
+    private char getCurrentChar() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
     }
 
     private void stringWithSimple() throws LexerException {
-        while (peek() != '\'' && !isAtEnd()) {
-            if (peek() == '\n') line++;
+        while (getCurrentChar() != '\'' && !isAtEnd()) {
+            if (getCurrentChar() == '\n') line++;
             advance();
         }
 
@@ -167,8 +167,8 @@ public class LexerImpl implements Lexer {
     }
 
     private void stringWithDouble() throws LexerException {
-        while (peek() != '"' && !isAtEnd()) {
-            if (peek() == '\n') line++;
+        while (getCurrentChar() != '"' && !isAtEnd()) {
+            if (getCurrentChar() == '\n') line++;
             advance();
         }
 
@@ -190,27 +190,27 @@ public class LexerImpl implements Lexer {
     }
 
     private void number() {
-        while (isDigit(peek())) advance();
+        while (isDigit(getCurrentChar())) advance();
 
         // Look for a fractional part.
-        if (peek() == '.' && isDigit(peekNext())) {
+        if (getCurrentChar() == '.' && isDigit(getNextChar())) {
             // Consume the "."
             advance();
 
-            while (isDigit(peek())) advance();
+            while (isDigit(getCurrentChar())) advance();
         }
 
         addToken(NUMBER,
                 Double.parseDouble(source.substring(start, current)));
     }
 
-    private char peekNext() {
+    private char getNextChar() {
         if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
     }
 
     private void identifier() {
-        while (isAlphaNumeric(peek())) advance();
+        while (isAlphaNumeric(getCurrentChar())) advance();
 
         String text = source.substring(start, current);
 
