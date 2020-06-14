@@ -8,10 +8,14 @@ import token.type.TokenType;
 
 import static token.type.TokenType.*;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class LexerImpl implements Lexer {
@@ -20,11 +24,9 @@ public class LexerImpl implements Lexer {
     private int current = 0;
     private int line = 1;
 
-    private String source;
-
-
     private static final Map<String, TokenType> keywords;
 
+    private String source;
     static {
         keywords = new HashMap<>();
         keywords.put("import", IMPORT);
@@ -40,12 +42,13 @@ public class LexerImpl implements Lexer {
         keywords.put("number",  NUMBER);
     }
 
-    public LexerImpl(String source) {
-        this.source = source;
+    public LexerImpl() {
+
     }
 
     @Override
-    public List<Token> getTokens() throws LexerException {
+    public List<Token> getTokens(InputStreamReader source) throws LexerException {
+        this.source = new BufferedReader(source).lines().collect(Collectors.joining("\n"));
 
         while(!isAtEnd()) {
             start = current;
