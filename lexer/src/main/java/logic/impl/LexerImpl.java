@@ -97,7 +97,8 @@ public class LexerImpl implements Lexer {
             case '\n':
                 line++;
                 break;
-            case '"': string(); break;
+            case '\'': stringWithSimple(); break;
+            case '"': stringWithDouble(); break;
             default:
                 if (isDigit(c)) {
                     number();
@@ -143,7 +144,26 @@ public class LexerImpl implements Lexer {
         return source.charAt(current);
     }
 
-    private void string() throws LexerException {
+    private void stringWithSimple() throws LexerException {
+        while (peek() != '\'' && !isAtEnd()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        // Unterminated string.
+        if (isAtEnd()) {
+            throw new LexerException("Unterminated string", line);
+        }
+
+        // The closing ".
+        advance();
+
+        // Trim the surrounding quotes.
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
+    }
+
+    private void stringWithDouble() throws LexerException {
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n') line++;
             advance();
