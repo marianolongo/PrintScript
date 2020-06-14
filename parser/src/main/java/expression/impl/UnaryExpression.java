@@ -12,4 +12,12 @@ public class UnaryExpression implements Expression {
         this.operand = operand;
         this.expression = expression;
     }
+
+    public Token getOperand() {
+        return operand;
+    }
+
+    public Expression getExpression() {
+        return expression;
+    }
 }

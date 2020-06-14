@@ -9,4 +9,8 @@ public class LiteralExpression implements Expression {
     public LiteralExpression(Object value) {
         this.value = value;
     }
+
+    public Object getValue() {
+        return value;
+    }
 }

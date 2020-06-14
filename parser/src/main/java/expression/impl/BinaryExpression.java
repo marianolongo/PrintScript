@@ -13,4 +13,16 @@ public class BinaryExpression implements Expression {
         this.operand = operand;
         this.right = right;
     }
+
+    public Expression getLeft() {
+        return left;
+    }
+
+    public Token getOperand() {
+        return operand;
+    }
+
+    public Expression getRight() {
+        return right;
+    }
 }

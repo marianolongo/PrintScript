@@ -8,4 +8,8 @@ public class GroupedExpression implements Expression{
     public GroupedExpression(Expression expression) {
         this.expression = expression;
     }
+
+    public Expression getExpression() {
+        return expression;
+    }
 }
