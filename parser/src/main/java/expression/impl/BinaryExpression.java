@@ -2,6 +2,7 @@ package expression.impl;
 
 import expression.Expression;
 import token.Token;
+import visitor.ExpressionVisitor;
 
 public class BinaryExpression implements Expression {
     private Expression left;
@@ -24,5 +25,10 @@ public class BinaryExpression implements Expression {
 
     public Expression getRight() {
         return right;
+    }
+
+    @Override
+    public Object accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

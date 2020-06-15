@@ -2,14 +2,14 @@ package logic.impl;
 
 import exception.ParserException;
 import expression.Expression;
-import expression.impl.BinaryExpression;
-import expression.impl.GroupedExpression;
-import expression.impl.LiteralExpression;
-import expression.impl.UnaryExpression;
+import expression.impl.*;
 import logic.Parser;
+import statement.Statement;
+import statement.impl.*;
 import token.Token;
 import token.type.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static token.type.TokenType.*;
@@ -24,13 +24,102 @@ public class ParserImpl implements Parser {
     }
 
     @Override
-    public Expression parse(List<Token> tokens) throws ParserException{
+    public List<Statement> parse(List<Token> tokens) throws ParserException{
         this.tokens = tokens;
-        return expression();
+        List<Statement> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        return statements;
+    }
+
+    private Statement declaration() {
+        try {
+            if (match(CONST, LET)) return declarationStatement();
+
+            return statement();
+        } catch (ParserException error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Statement statement() throws ParserException {
+        if (match(IF)) return ifStatement();
+        if (match(PRINT)) return printStatement();
+        if (match(LEFT_BRACE)) return new BlockStatement(block());
+
+        return expressionStatement();
+    }
+
+    private Statement ifStatement() throws ParserException {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Statement thenBranch = statement();
+        Statement elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new IfStatement(condition, thenBranch, elseBranch);
+    }
+
+    private List<Statement> block() throws ParserException {
+        List<Statement> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+    private Statement declarationStatement() throws ParserException {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expression initializer = null;
+        if (match(EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new DeclarationStatement(name, initializer);
+    }
+
+    private Statement printStatement() throws ParserException {
+        Expression value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new PrintStatement(value);
+    }
+
+    private Statement expressionStatement() throws ParserException {
+        Expression expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new ExpressionStatement(expr);
     }
 
     private Expression expression() throws ParserException {
-        return equality();
+        return assignment();
+    }
+
+    private Expression assignment() throws ParserException {
+        Expression expr = equality();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expression value = assignment();
+
+            if (expr instanceof VariableExpression) {
+                Token name = ((VariableExpression)expr).getName();
+                return new AssignmentExpression(name, value);
+            }
+            throw new ParserException("Invalid assignment target.", equals);
+        }
+
+        return expr;
     }
 
     private Expression equality() throws ParserException {
@@ -132,6 +221,10 @@ public class ParserImpl implements Parser {
             return new LiteralExpression(previous().getLiteral());
         }
 
+        if (match(IDENTIFIER)) {
+            return new VariableExpression(previous());
+        }
+
         if (match(LEFT_PAREN)) {
             Expression expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
@@ -161,6 +254,7 @@ public class ParserImpl implements Parser {
                     return;
                 case BOOLEAN:
                 case STRING:
+                case NUMBER:
                     if(peek().getLiteral() != null) return;
             }
 

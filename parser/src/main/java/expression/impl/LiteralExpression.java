@@ -1,6 +1,7 @@
 package expression.impl;
 
 import expression.Expression;
+import visitor.ExpressionVisitor;
 
 public class LiteralExpression implements Expression {
 
@@ -12,5 +13,10 @@ public class LiteralExpression implements Expression {
 
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public Object accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

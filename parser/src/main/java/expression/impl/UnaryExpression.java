@@ -2,6 +2,7 @@ package expression.impl;
 
 import expression.Expression;
 import token.Token;
+import visitor.ExpressionVisitor;
 
 public class UnaryExpression implements Expression {
 
@@ -19,5 +20,10 @@ public class UnaryExpression implements Expression {
 
     public Expression getExpression() {
         return expression;
+    }
+
+    @Override
+    public Object accept(ExpressionVisitor visitor) {
+        return visitor.visit(this);
     }
 }

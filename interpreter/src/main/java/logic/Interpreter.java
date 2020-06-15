@@ -1,8 +1,11 @@
 package logic;
 
 import expression.Expression;
+import statement.Statement;
+
+import java.util.List;
 
 public interface Interpreter {
 
-    void interpret(Expression expression);
+    void interpret(List<Statement> statements);
 }

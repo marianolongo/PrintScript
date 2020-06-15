@@ -4,17 +4,28 @@ import exception.InterpreterException;
 import expression.Expression;
 import expression.impl.*;
 import logic.Interpreter;
+import logic.environment.Environment;
+import logic.environment.impl.EnvironmentImpl;
+import statement.Statement;
+import statement.impl.*;
 import token.Token;
 import visitor.ExpressionVisitor;
+import visitor.StatementVisitor;
+
+import java.util.List;
 
 import static token.type.TokenType.*;
 
-public class InterpreterImpl implements Interpreter, ExpressionVisitor {
+public class InterpreterImpl implements Interpreter, ExpressionVisitor, StatementVisitor {
+
+    private Environment environment = new EnvironmentImpl();
 
     @Override
-    public void interpret(Expression expression) throws InterpreterException {
-        Object value = evaluate(expression);
-        System.out.println(value.toString());
+    public void interpret(List<Statement> statements) throws InterpreterException {
+        for (Statement statement : statements) {
+            if(statement != null)
+            statement.accept(this);
+        }
     }
 
     @Override
@@ -80,12 +91,15 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor {
 
     @Override
     public Object visit(VariableExpression variableExpression) {
-        return null;
+        return environment.getValue(variableExpression.getName());
     }
 
     @Override
     public Object visit(AssignmentExpression assignmentExpression) {
-        return null;
+        Object value = evaluate(assignmentExpression.getValue());
+
+        environment.assign(assignmentExpression.getName(), value);
+        return value;
     }
 
     @Override
@@ -114,5 +128,57 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor {
 
         if (left instanceof Double && right instanceof Double) return;
         throw new InterpreterException(operator, "Operands must be numbers.");
+    }
+
+    @Override
+    public Void visit(PrintStatement printStatement) {
+        Object value = evaluate(printStatement.getExpression());
+        System.out.println(value.toString());
+        return null;
+    }
+
+    @Override
+    public Void visit(ExpressionStatement expressionStatement) {
+        evaluate(expressionStatement.getExpression());
+        return null;
+    }
+
+    @Override
+    public Void visit(DeclarationStatement declarationStatement) {
+        Object value = null;
+        if (declarationStatement.getInitializer() != null) {
+            value = evaluate(declarationStatement.getInitializer());
+        }
+
+        environment.addValue(declarationStatement.getName().getLexeme(), value);
+        return null;
+    }
+
+    @Override
+    public Void visit(BlockStatement blockStatement) {
+        executeBlock(blockStatement.getStatements(), new EnvironmentImpl(environment));
+        return null;
+    }
+
+    void executeBlock(List<Statement> statements, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Statement statement : statements) {
+                statement.accept(this);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+    @Override
+    public Void visit(IfStatement ifStatement) {
+        if (isTruthy(evaluate(ifStatement.getCondition()))) {
+            ifStatement.getThenStatement().accept(this);
+        } else if (ifStatement.getElseStatement() != null) {
+            ifStatement.getElseStatement().accept(this);
+        }
+        return null;
     }
 }

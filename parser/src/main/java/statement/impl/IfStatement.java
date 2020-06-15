@@ -2,6 +2,7 @@ package statement.impl;
 
 import expression.Expression;
 import statement.Statement;
+import visitor.StatementVisitor;
 
 public class IfStatement implements Statement {
 
@@ -13,5 +14,27 @@ public class IfStatement implements Statement {
         this.condition = condition;
         this.thenStatement = thenStatement;
         this.elseStatement = elseStatement;
+    }
+
+    @Override
+    public Expression getExpression() {
+        return condition;
+    }
+
+    @Override
+    public void accept(StatementVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public Statement getThenStatement() {
+        return thenStatement;
+    }
+
+    public Statement getElseStatement() {
+        return elseStatement;
     }
 }
