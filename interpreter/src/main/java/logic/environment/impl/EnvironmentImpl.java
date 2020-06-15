@@ -8,13 +8,17 @@ import token.type.TokenType;
 import java.util.HashMap;
 import java.util.Map;
 
+import static token.type.TokenType.LET;
+
 public class EnvironmentImpl implements Environment {
 
     private Map<String, Object> values;
+    private Map<String, TokenType> typeValues;
     private Environment enclosing;
 
     public EnvironmentImpl() {
         this.values = new HashMap<>();
+        this.typeValues = new HashMap<>();
         enclosing = null;
     }
 
@@ -29,15 +33,20 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public void addValue(String name, Object value) {
+    public void addValue(String name, Object value, TokenType type) {
         values.put(name, value);
+        typeValues.put(name, type);
     }
 
     @Override
     public void assign(Token name, Object value) {
         if (values.containsKey(name.getLexeme())) {
-            values.put(name.getLexeme(), value);
-            return;
+            if(typeValues.get(name.getLexeme()) == LET){
+                values.put(name.getLexeme(), value);
+                return;
+            } else {
+                throw new InterpreterException(name, "Constant cannot be changed");
+            }
         }
         if (enclosing != null) {
             enclosing.assign(name, value);

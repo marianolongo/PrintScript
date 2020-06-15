@@ -36,7 +36,8 @@ public class ParserImpl implements Parser {
 
     private Statement declaration() {
         try {
-            if (match(CONST, LET)) return declarationStatement();
+            Token currentToken = peek();
+            if (match(CONST, LET)) return declarationStatement(currentToken);
 
             return statement();
         } catch (ParserException error) {
@@ -77,7 +78,7 @@ public class ParserImpl implements Parser {
         consume(RIGHT_BRACE, "Expect '}' after block.");
         return statements;
     }
-    private Statement declarationStatement() throws ParserException {
+    private Statement declarationStatement(Token currentToken) throws ParserException {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
         Expression initializer = null;
@@ -86,7 +87,7 @@ public class ParserImpl implements Parser {
         }
 
         consume(SEMICOLON, "Expect ';' after variable declaration.");
-        return new DeclarationStatement(name, initializer);
+        return new DeclarationStatement(currentToken, name, initializer);
     }
 
     private Statement printStatement() throws ParserException {

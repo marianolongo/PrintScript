@@ -30,14 +30,16 @@ public class Main {
         try {
             tokens = lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                     (
-                            "const a: string = \"hola\"; \n" +
-                            "const b: number = 2; \n" +
-                            "print (3 + 3);"
+                            "let a = \"hola\"; \n" +
+                                    "const b = 2; \n" +
+                                    "print (a); \n" +
+                                    "print (b); \n" +
+                                    "a = \"chau\";" +
+                                    "print (a); \n"
                     )
                             .getBytes())));
             statements = parser.parse(tokens);
             interpreter.interpret(statements);
-            System.out.println("FINISHED");
         } catch (LexerException | ParserException | InterpreterException e) {
             e.printStackTrace();
         }

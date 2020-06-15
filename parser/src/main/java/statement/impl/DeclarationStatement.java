@@ -7,12 +7,18 @@ import visitor.StatementVisitor;
 
 public class DeclarationStatement implements Statement {
 
+    private Token keyword;
     private Token name;
     private Expression initializer;
 
-    public DeclarationStatement(Token name, Expression initializer) {
+    public DeclarationStatement(Token keyword, Token name, Expression initializer) {
+        this.keyword = keyword;
         this.name = name;
         this.initializer = initializer;
+    }
+
+    public Token getKeyword() {
+        return keyword;
     }
 
     public Token getName() {

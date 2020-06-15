@@ -153,7 +153,7 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
             value = evaluate(declarationStatement.getInitializer());
         }
 
-        environment.addValue(declarationStatement.getName().getLexeme(), value);
+        environment.addValue(declarationStatement.getName().getLexeme(), value, declarationStatement.getKeyword().getType());
         return null;
     }
 
