@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static token.type.TokenType.*;
-import static token.type.TokenType.STRING;
 
 public class EnvironmentImpl implements Environment {
 
@@ -70,6 +69,7 @@ public class EnvironmentImpl implements Environment {
         }
         throw new InterpreterException(name, "Undefined variable '" + name.getLexeme() + "'.");
     }
+
     @Override
     public Object getValue(Token name) throws InterpreterException {
         if (values.containsKey(name.getLexeme())) {

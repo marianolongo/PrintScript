@@ -30,14 +30,6 @@ public class DeclarationImpl implements Declaration {
         return value;
     }
 
-    public void setKeyword(TokenType keyword) {
-        this.keyword = keyword;
-    }
-
-    public void setType(TokenType type) {
-        this.type = type;
-    }
-
     public void setValue(Object value) {
         this.value = value;
     }
