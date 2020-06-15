@@ -32,7 +32,7 @@ public class Main {
                     (
                             "const a: string = \"hola\"; \n" +
                             "const b: number = 2; \n" +
-                            "print (\"chau\");"
+                            "print (3 + 3);"
                     )
                             .getBytes())));
             statements = parser.parse(tokens);

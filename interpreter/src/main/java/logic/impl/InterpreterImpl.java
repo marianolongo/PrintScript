@@ -53,6 +53,9 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
             case MINUS:
                 return (double)left - (double)right;
             case PLUS:
+                if(left instanceof Number && right instanceof Number){
+                    return (double)left + (double)right;
+                }
                 return left.toString() + right.toString();
             case SLASH:
                 return (double)left / (double)right;
