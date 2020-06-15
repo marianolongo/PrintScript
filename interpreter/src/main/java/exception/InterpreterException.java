@@ -9,4 +9,9 @@ public class InterpreterException extends RuntimeException {
         super(message);
         this.token = token;
     }
+
+    @Override
+    public String getMessage() {
+        return super.getMessage() + " at line " + token.getLine();
+    }
 }

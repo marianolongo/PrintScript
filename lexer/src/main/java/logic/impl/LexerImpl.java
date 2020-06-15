@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class LexerImpl implements Lexer {
     private List<Token> tokens = new ArrayList<>();
+
     private int start = 0;
     private int current = 0;
     private int line = 1;

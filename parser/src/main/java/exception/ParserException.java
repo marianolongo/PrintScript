@@ -14,7 +14,7 @@ public class ParserException extends Exception {
 
     @Override
     public String getMessage() {
-        return message + " " + token.getLexeme();
+        return message + " at line " + token.getLine();
     }
 
     public Token getToken() {

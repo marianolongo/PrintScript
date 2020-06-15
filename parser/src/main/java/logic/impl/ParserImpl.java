@@ -34,7 +34,7 @@ public class ParserImpl implements Parser {
         return statements;
     }
 
-    private Statement declaration() {
+    private Statement declaration() throws ParserException {
         try {
             Token currentToken = peek();
             if (match(CONST, LET)) return declarationStatement(currentToken);
@@ -42,7 +42,7 @@ public class ParserImpl implements Parser {
             return statement();
         } catch (ParserException error) {
             synchronize();
-            return null;
+            throw error;
         }
     }
 
@@ -81,13 +81,25 @@ public class ParserImpl implements Parser {
     private Statement declarationStatement(Token currentToken) throws ParserException {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
+        TokenType type = null;
         Expression initializer = null;
+
+        if(match(COLON)) {
+            if(match(STRING)){
+                type = STRING;
+            } else if (match(NUMBER)) {
+                type = NUMBER;
+            } else if (match(BOOLEAN)){
+                type = BOOLEAN;
+            }
+        } else throw new ParserException("Cannot declare without a type", peek());
+
         if (match(EQUAL)) {
             initializer = expression();
         }
 
         consume(SEMICOLON, "Expect ';' after variable declaration.");
-        return new DeclarationStatement(currentToken, name, initializer);
+        return new DeclarationStatement(currentToken, name, type, initializer);
     }
 
     private Statement printStatement() throws ParserException {

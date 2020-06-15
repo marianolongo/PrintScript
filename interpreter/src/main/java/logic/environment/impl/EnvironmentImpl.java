@@ -1,6 +1,7 @@
 package logic.environment.impl;
 
 import exception.InterpreterException;
+import logic.environment.Declaration;
 import logic.environment.Environment;
 import token.Token;
 import token.type.TokenType;
@@ -8,17 +9,16 @@ import token.type.TokenType;
 import java.util.HashMap;
 import java.util.Map;
 
-import static token.type.TokenType.LET;
+import static token.type.TokenType.*;
+import static token.type.TokenType.STRING;
 
 public class EnvironmentImpl implements Environment {
 
-    private Map<String, Object> values;
-    private Map<String, TokenType> typeValues;
+    private Map<String, Declaration> values;
     private Environment enclosing;
 
     public EnvironmentImpl() {
         this.values = new HashMap<>();
-        this.typeValues = new HashMap<>();
         enclosing = null;
     }
 
@@ -28,21 +28,37 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public Map<String, Object> getValues() {
+    public Map<String, Declaration> getValues() {
         return values;
     }
 
     @Override
-    public void addValue(String name, Object value, TokenType type) {
-        values.put(name, value);
-        typeValues.put(name, type);
+    public void addValue(String name, TokenType keyword, TokenType type, Object value) {
+        values.put(name, new DeclarationImpl(keyword, type, value));
     }
 
     @Override
     public void assign(Token name, Object value) {
         if (values.containsKey(name.getLexeme())) {
-            if(typeValues.get(name.getLexeme()) == LET){
-                values.put(name.getLexeme(), value);
+            Declaration declaration = values.get(name.getLexeme());
+            if(declaration.getKeyword() == LET){
+                if (declaration.getType() == BOOLEAN){
+                    if (!(value instanceof Boolean)){
+                        throw new InterpreterException(name, "Expected a boolean");
+                    }
+                }
+                else if (declaration.getType() == NUMBER){
+                    if (!(value instanceof Number)) {
+                        throw new InterpreterException(name, "Expected a number");
+                    }
+                }
+                else if (declaration.getType() == STRING){
+                    if (!(value instanceof String)){
+                        throw new InterpreterException(name, "Expected a string");
+                    }
+                }
+                declaration.setValue(value);
+                values.put(name.getLexeme(), declaration);
                 return;
             } else {
                 throw new InterpreterException(name, "Constant cannot be changed");
@@ -57,7 +73,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public Object getValue(Token name) throws InterpreterException {
         if (values.containsKey(name.getLexeme())) {
-            return values.get(name.getLexeme());
+            return values.get(name.getLexeme()).getValue();
         }
         if (enclosing != null) return enclosing.getValue(name);
 

@@ -152,8 +152,23 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         if (declarationStatement.getInitializer() != null) {
             value = evaluate(declarationStatement.getInitializer());
         }
+        if (declarationStatement.getType() == BOOLEAN){
+            if (!(value instanceof Boolean)){
+                throw new InterpreterException(declarationStatement.getName(), "Expected a boolean");
+            }
+        }
+        if (declarationStatement.getType() == NUMBER){
+            if (!(value instanceof Number)){
+                throw new InterpreterException(declarationStatement.getName(), "Expected a number");
+            }
+        }
+        if (declarationStatement.getType() == STRING){
+            if (!(value instanceof String)){
+                throw new InterpreterException(declarationStatement.getName(), "Expected a string");
+            }
+        }
 
-        environment.addValue(declarationStatement.getName().getLexeme(), value, declarationStatement.getKeyword().getType());
+        environment.addValue(declarationStatement.getName().getLexeme(), declarationStatement.getKeyword().getType(), declarationStatement.getType(), value);
         return null;
     }
 

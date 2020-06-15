@@ -30,12 +30,13 @@ public class Main {
         try {
             tokens = lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                     (
-                            "let a = \"hola\"; \n" +
-                                    "const b = 2; \n" +
+                            "let a: string = \"hola\"; \n" +
+                                    "const b: number = 2; \n" +
                                     "print (a); \n" +
                                     "print (b); \n" +
                                     "a = \"chau\";" +
                                     "print (a); \n"
+//                            "if(1 > 2) {print (\"paso\");} else {print (\"no paso\");}"
                     )
                             .getBytes())));
             statements = parser.parse(tokens);
@@ -45,7 +46,7 @@ public class Main {
         }
 
 //        Objects.requireNonNull(tokens).forEach(System.out::println);
-//
+
 //        Objects.requireNonNull(statements).forEach(System.out::println);
     }
 }
