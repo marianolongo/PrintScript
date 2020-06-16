@@ -58,8 +58,10 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
                 }
                 return left.toString() + right.toString();
             case SLASH:
+                checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left / (double)right;
             case STAR:
+                checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left * (double)right;
         }
 
@@ -130,7 +132,7 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
     private void checkNumberOperands(Token operator, Object left, Object right) {
 
         if (left instanceof Double && right instanceof Double) return;
-        throw new InterpreterException(operator, "Operands must be numbers.");
+        throw new InterpreterException(operator, "Operands must be numbers");
     }
 
     @Override

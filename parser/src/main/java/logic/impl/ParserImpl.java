@@ -36,8 +36,8 @@ public class ParserImpl implements Parser {
 
     private Statement declaration() throws ParserException {
         try {
-            Token currentToken = peek();
-            if (match(CONST, LET)) return declarationStatement(currentToken);
+            Token currentToken = getCurrent();
+            if (checkAndAdvance(CONST, LET)) return declarationStatement(currentToken);
 
             return statement();
         } catch (ParserException error) {
@@ -47,9 +47,9 @@ public class ParserImpl implements Parser {
     }
 
     private Statement statement() throws ParserException {
-        if (match(IF)) return ifStatement();
-        if (match(PRINT)) return printStatement();
-        if (match(LEFT_BRACE)) return new BlockStatement(block());
+        if (checkAndAdvance(IF)) return ifStatement();
+        if (checkAndAdvance(PRINT)) return printStatement();
+        if (checkAndAdvance(LEFT_BRACE)) return new BlockStatement(block());
 
         return expressionStatement();
     }
@@ -61,7 +61,7 @@ public class ParserImpl implements Parser {
 
         Statement thenBranch = statement();
         Statement elseBranch = null;
-        if (match(ELSE)) {
+        if (checkAndAdvance(ELSE)) {
             elseBranch = statement();
         }
 
@@ -84,17 +84,17 @@ public class ParserImpl implements Parser {
         TokenType type = null;
         Expression initializer = null;
 
-        if(match(COLON)) {
-            if(match(STRING)){
+        if(checkAndAdvance(COLON)) {
+            if(checkAndAdvance(STRING)){
                 type = STRING;
-            } else if (match(NUMBER)) {
+            } else if (checkAndAdvance(NUMBER)) {
                 type = NUMBER;
-            } else if (match(BOOLEAN)){
+            } else if (checkAndAdvance(BOOLEAN)){
                 type = BOOLEAN;
             }
-        } else throw new ParserException("Cannot declare without a type", peek());
+        } else throw new ParserException("Cannot declare without a type", getCurrent());
 
-        if (match(EQUAL)) {
+        if (checkAndAdvance(EQUAL)) {
             initializer = expression();
         }
 
@@ -121,8 +121,8 @@ public class ParserImpl implements Parser {
     private Expression assignment() throws ParserException {
         Expression expr = equality();
 
-        if (match(EQUAL)) {
-            Token equals = previous();
+        if (checkAndAdvance(EQUAL)) {
+            Token equals = getPrevious();
             Expression value = assignment();
 
             if (expr instanceof VariableExpression) {
@@ -138,19 +138,20 @@ public class ParserImpl implements Parser {
     private Expression equality() throws ParserException {
         Expression expr = comparison();
 
-        while (match(BANG_EQUAL, EQUAL_EQUAL)) {
-            Token operator = previous();
+        while (checkAndAdvance(BANG_EQUAL, EQUAL_EQUAL)) {
+            Token operator = getPrevious();
             Expression right = comparison();
             expr = new BinaryExpression(expr, operator, right);
         }
 
         return expr;
+
     }
 
-    private boolean match(TokenType... types) {
+    private boolean checkAndAdvance(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
-                advance();
+                advanceAndReturnCurrent();
                 return true;
             }
         }
@@ -160,31 +161,31 @@ public class ParserImpl implements Parser {
 
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
-        return peek().getType() == type;
+        return getCurrent().getType() == type;
     }
 
-    private Token advance() {
+    private Token advanceAndReturnCurrent() {
         if (!isAtEnd()) current++;
-        return previous();
+        return getPrevious();
     }
 
     private boolean isAtEnd() {
-        return peek().getType() == EOF;
+        return getCurrent().getType() == EOF;
     }
 
-    private Token peek() {
+    private Token getCurrent() {
         return tokens.get(current);
     }
 
-    private Token previous() {
+    private Token getPrevious() {
         return tokens.get(current - 1);
     }
 
     private Expression comparison() throws ParserException {
         Expression expr = addition();
 
-        while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
-            Token operator = previous();
+        while (checkAndAdvance(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+            Token operator = getPrevious();
             Expression right = addition();
             expr = new BinaryExpression(expr, operator, right);
         }
@@ -195,8 +196,8 @@ public class ParserImpl implements Parser {
     private Expression addition() throws ParserException {
         Expression expr = multiplication();
 
-        while (match(MINUS, PLUS)) {
-            Token operator = previous();
+        while (checkAndAdvance(MINUS, PLUS)) {
+            Token operator = getPrevious();
             Expression right = multiplication();
             expr = new BinaryExpression(expr, operator, right);
         }
@@ -207,8 +208,8 @@ public class ParserImpl implements Parser {
     private Expression multiplication() throws ParserException {
         Expression expr = unary();
 
-        while (match(SLASH, STAR)) {
-            Token operator = previous();
+        while (checkAndAdvance(SLASH, STAR)) {
+            Token operator = getPrevious();
             Expression right = unary();
             expr = new BinaryExpression(expr, operator, right);
         }
@@ -217,8 +218,8 @@ public class ParserImpl implements Parser {
     }
 
     private Expression unary() throws ParserException {
-        if (match(BANG, MINUS)) {
-            Token operator = previous();
+        if (checkAndAdvance(BANG, MINUS)) {
+            Token operator = getPrevious();
             Expression right = unary();
             return new UnaryExpression(operator, right);
         }
@@ -227,39 +228,39 @@ public class ParserImpl implements Parser {
     }
 
     private Expression primary() throws ParserException {
-        if (match(FALSE)) return new LiteralExpression(false);
-        if (match(TRUE)) return new LiteralExpression(true);
+        if (checkAndAdvance(FALSE)) return new LiteralExpression(false);
+        if (checkAndAdvance(TRUE)) return new LiteralExpression(true);
 
-        if (match(NUMBER, STRING)) {
-            return new LiteralExpression(previous().getLiteral());
+        if (checkAndAdvance(NUMBER, STRING)) {
+            return new LiteralExpression(getPrevious().getLiteral());
         }
 
-        if (match(IDENTIFIER)) {
-            return new VariableExpression(previous());
+        if (checkAndAdvance(IDENTIFIER)) {
+            return new VariableExpression(getPrevious());
         }
 
-        if (match(LEFT_PAREN)) {
+        if (checkAndAdvance(LEFT_PAREN)) {
             Expression expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupedExpression(expr);
         }
 
-        throw new ParserException("Expect expression.", peek());
+        throw new ParserException("Expect expression.", getCurrent());
     }
 
     private Token consume(TokenType type, String message) throws ParserException {
-        if (check(type)) return advance();
+        if (check(type)) return advanceAndReturnCurrent();
 
-        throw new ParserException(message, peek());
+        throw new ParserException(message, getCurrent());
     }
 
     private void synchronize() {
-        advance();
+        advanceAndReturnCurrent();
 
         while (!isAtEnd()) {
-            if (previous().getType() == SEMICOLON) return;
+            if (getPrevious().getType() == SEMICOLON) return;
 
-            switch (peek().getType()) {
+            switch (getCurrent().getType()) {
                 case IF:
                 case LET:
                 case CONST:
@@ -268,10 +269,10 @@ public class ParserImpl implements Parser {
                 case BOOLEAN:
                 case STRING:
                 case NUMBER:
-                    if(peek().getLiteral() != null) return;
+                    if(getCurrent().getLiteral() != null) return;
             }
 
-            advance();
+            advanceAndReturnCurrent();
         }
     }
 }
