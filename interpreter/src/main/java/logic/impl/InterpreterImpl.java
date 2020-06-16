@@ -23,7 +23,6 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
     @Override
     public void interpret(List<Statement> statements) throws InterpreterException {
         for (Statement statement : statements) {
-            if(statement != null)
             statement.accept(this);
         }
     }
@@ -64,8 +63,6 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
                 checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left * (double)right;
         }
-
-        // Unreachable.
         return null;
     }
 
@@ -75,12 +72,11 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
 
         switch (unaryExpression.getOperand().getType()) {
             case MINUS:
+                checkNumberOperands(unaryExpression.getOperand(), right);
                 return -(double)right;
             case BANG:
                 return !isTruthy(right);
         }
-
-        // Unreachable.
         return null;
     }
 
@@ -129,28 +125,32 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         throw new InterpreterException(operator, "Operands must be numbers");
     }
 
+    private void checkNumberOperands(Token operator, Object object){
+        if(object instanceof Double) return;
+        throw new InterpreterException(operator, "Operand must be a number");
+    }
+
     @Override
-    public Void visit(PrintStatement printStatement) {
+    public void visit(PrintStatement printStatement) {
         Object value = evaluate(printStatement.getExpression());
         System.out.println(value);
-        return null;
     }
 
     @Override
-    public Void visit(ExpressionStatement expressionStatement) {
+    public void visit(ExpressionStatement expressionStatement) {
         evaluate(expressionStatement.getExpression());
-        return null;
     }
 
     @Override
-    public Void visit(DeclarationStatement declarationStatement) {
+    public void visit(DeclarationStatement declarationStatement) {
         Object value = null;
         if (declarationStatement.getInitializer() != null) {
             value = evaluate(declarationStatement.getInitializer());
         }
+
         if(value == null){
             environment.addValue(declarationStatement.getName().getLexeme(), declarationStatement.getKeyword().getType(), declarationStatement.getType(), null);
-            return null;
+            return;
         }
 
         if (declarationStatement.getType() == BOOLEAN){
@@ -168,15 +168,12 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
                 throw new InterpreterException(declarationStatement.getName(), "Expected a string");
             }
         }
-
         environment.addValue(declarationStatement.getName().getLexeme(), declarationStatement.getKeyword().getType(), declarationStatement.getType(), value);
-        return null;
     }
 
     @Override
-    public Void visit(BlockStatement blockStatement) {
+    public void visit(BlockStatement blockStatement) {
         executeBlock(blockStatement.getStatements(), new EnvironmentImpl(environment));
-        return null;
     }
 
     void executeBlock(List<Statement> statements, Environment environment) {
@@ -192,12 +189,11 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         }
     }
     @Override
-    public Void visit(IfStatement ifStatement) {
+    public void visit(IfStatement ifStatement) {
         if (isTruthy(evaluate(ifStatement.getCondition()))) {
             ifStatement.getThenStatement().accept(this);
         } else if (ifStatement.getElseStatement() != null) {
             ifStatement.getElseStatement().accept(this);
         }
-        return null;
     }
 }

@@ -3,9 +3,9 @@ package visitor;
 import statement.impl.*;
 
 public interface StatementVisitor {
-    Void visit(PrintStatement printStatement);
-    Void visit(ExpressionStatement expressionStatement);
-    Void visit(DeclarationStatement declarationStatement);
-    Void visit(BlockStatement blockStatement);
-    Void visit(IfStatement ifStatement);
+    void visit(PrintStatement printStatement);
+    void visit(ExpressionStatement expressionStatement);
+    void visit(DeclarationStatement declarationStatement);
+    void visit(BlockStatement blockStatement);
+    void visit(IfStatement ifStatement);
 }

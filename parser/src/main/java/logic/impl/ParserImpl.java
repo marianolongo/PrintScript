@@ -223,10 +223,7 @@ public class ParserImpl implements Parser {
     }
 
     private Expression primary() throws ParserException {
-        if (checkAndAdvance(FALSE)) return new LiteralExpression(false);
-        if (checkAndAdvance(TRUE)) return new LiteralExpression(true);
-
-        if (checkAndAdvance(NUMBER, STRING)) {
+        if (checkAndAdvance(NUMBER, STRING, BOOLEAN)) {
             return new LiteralExpression(getPrevious().getLiteral());
         }
 
@@ -240,7 +237,7 @@ public class ParserImpl implements Parser {
             return new GroupedExpression(expr);
         }
 
-        throw new ParserException("Expect expression.", getCurrent());
+        throw new ParserException("Expect expression ", getCurrent());
     }
 
     private Token consume(TokenType type, String message) throws ParserException {

@@ -30,12 +30,21 @@ public class Main {
         try {
             tokens = lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                     (
-                            "let a: string = \"hola\"; \n" +
-                                    "const b: number = 2; \n" +
-                                    "print (a); \n" +
-                                    "print (b); \n" +
-                                    "a = \"chau\" \n;" +
-                                    "print (a); \n"
+                            "let a: string; \n" +
+                                    "{" +
+                                    "a = \"hola\";\n" +
+                                    "print (a);\n" +
+                                    "const b: number = 2;" +
+                                    "} \n" +
+                                    "print(a); \n" +
+                                    "print(b);"
+//                            "let a: string = \"hola\"; \n" +
+//                                    "const b: number = 2; \n" +
+//                                    "print (a); \n" +
+//                                    "print (b); \n" +
+//                                    "a = \"chau\" \n;" +
+//                                    "print (a); \n"
+//                            "const a: string; print (a);"
 //                            "const a: boolean = true; if(a != false){print(\"paso\");}"
 //                            "const a: string = \"hello\" / 2; print(a);"
                     )
