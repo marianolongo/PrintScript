@@ -25,19 +25,19 @@ public class Main {
     private static Interpreter interpreter = new InterpreterImpl();
 
     public static void main(String[] args) {
-        List<Token> tokens = Collections.emptyList();
-        List<Statement> statements = Collections.emptyList();
+        List<Token> tokens;
+        List<Statement> statements;
         try {
             tokens = lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                     (
-//                            "let a: string = \"hola\"; \n" +
-//                                    "const b: number = 2; \n" +
-//                                    "print (a); \n" +
-//                                    "print (b); \n" +
-//                                    "a = \"chau\" \n;" +
-//                                    "print (a); \n"
+                            "let a: string = \"hola\"; \n" +
+                                    "const b: number = 2; \n" +
+                                    "print (a); \n" +
+                                    "print (b); \n" +
+                                    "a = \"chau\" \n;" +
+                                    "print (a); \n"
 //                            "const a: boolean = true; if(a != false){print(\"paso\");}"
-                            "const a: string = \"hello\" / 2; print(a);"
+//                            "const a: string = \"hello\" / 2; print(a);"
                     )
                             .getBytes())));
             statements = parser.parse(tokens);

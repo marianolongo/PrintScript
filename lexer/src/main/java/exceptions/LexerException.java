@@ -1,6 +1,6 @@
 package exceptions;
 
-public class LexerException extends Exception {
+public class LexerException extends RuntimeException {
     private String message;
     private Integer line;
 

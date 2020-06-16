@@ -35,15 +35,10 @@ public class ParserImpl implements Parser {
     }
 
     private Statement declaration() throws ParserException {
-        try {
-            Token currentToken = getCurrent();
-            if (checkAndAdvance(CONST, LET)) return declarationStatement(currentToken);
+        Token currentToken = getCurrent();
+        if (checkAndAdvance(CONST, LET)) return declarationStatement(currentToken);
 
-            return statement();
-        } catch (ParserException error) {
-            synchronize();
-            throw error;
-        }
+        return statement();
     }
 
     private Statement statement() throws ParserException {
@@ -55,9 +50,9 @@ public class ParserImpl implements Parser {
     }
 
     private Statement ifStatement() throws ParserException {
-        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        consume(LEFT_PAREN, "Expect '(' after 'if'");
         Expression condition = expression();
-        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+        consume(RIGHT_PAREN, "Expect ')' after if condition");
 
         Statement thenBranch = statement();
         Statement elseBranch = null;
@@ -75,11 +70,11 @@ public class ParserImpl implements Parser {
             statements.add(declaration());
         }
 
-        consume(RIGHT_BRACE, "Expect '}' after block.");
+        consume(RIGHT_BRACE, "Expect '}' after block");
         return statements;
     }
     private Statement declarationStatement(Token currentToken) throws ParserException {
-        Token name = consume(IDENTIFIER, "Expect variable name.");
+        Token name = consume(IDENTIFIER, "Expect variable name");
 
         TokenType type = null;
         Expression initializer = null;
@@ -98,19 +93,19 @@ public class ParserImpl implements Parser {
             initializer = expression();
         }
 
-        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        consume(SEMICOLON, "Expect ';' after variable declaration");
         return new DeclarationStatement(currentToken, name, type, initializer);
     }
 
     private Statement printStatement() throws ParserException {
         Expression value = expression();
-        consume(SEMICOLON, "Expect ';' after value.");
+        consume(SEMICOLON, "Expect ';' after value");
         return new PrintStatement(value);
     }
 
     private Statement expressionStatement() throws ParserException {
         Expression expr = expression();
-        consume(SEMICOLON, "Expect ';' after expression.");
+        consume(SEMICOLON, "Expect ';' after expression");
         return new ExpressionStatement(expr);
     }
 
@@ -129,7 +124,7 @@ public class ParserImpl implements Parser {
                 Token name = ((VariableExpression)expr).getName();
                 return new AssignmentExpression(name, value);
             }
-            throw new ParserException("Invalid assignment target.", equals);
+            throw new ParserException("Invalid assignment target", equals);
         }
 
         return expr;
@@ -252,27 +247,5 @@ public class ParserImpl implements Parser {
         if (check(type)) return advanceAndReturnCurrent();
 
         throw new ParserException(message, getCurrent());
-    }
-
-    private void synchronize() {
-        advanceAndReturnCurrent();
-
-        while (!isAtEnd()) {
-            if (getPrevious().getType() == SEMICOLON) return;
-
-            switch (getCurrent().getType()) {
-                case IF:
-                case LET:
-                case CONST:
-                case PRINT:
-                    return;
-                case BOOLEAN:
-                case STRING:
-                case NUMBER:
-                    if(getCurrent().getLiteral() != null) return;
-            }
-
-            advanceAndReturnCurrent();
-        }
     }
 }
