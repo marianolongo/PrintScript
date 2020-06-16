@@ -34,9 +34,10 @@ public class Main {
                                     "const b: number = 2; \n" +
                                     "print (a); \n" +
                                     "print (b); \n" +
-                                    "a = \"chau\";" +
+                                    "a = \"chau\" \n;" +
                                     "print (a); \n"
 //                            "if(1 > 2) {print (\"paso\");} else {print (\"no paso\");}"
+//                            "const a: string; print(a);"
                     )
                             .getBytes())));
             statements = parser.parse(tokens);

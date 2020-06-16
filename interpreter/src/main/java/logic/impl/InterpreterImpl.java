@@ -136,7 +136,7 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
     @Override
     public Void visit(PrintStatement printStatement) {
         Object value = evaluate(printStatement.getExpression());
-        System.out.println(value.toString());
+        System.out.println(value);
         return null;
     }
 
@@ -152,6 +152,11 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         if (declarationStatement.getInitializer() != null) {
             value = evaluate(declarationStatement.getInitializer());
         }
+        if(value == null){
+            environment.addValue(declarationStatement.getName().getLexeme(), declarationStatement.getKeyword().getType(), declarationStatement.getType(), null);
+            return null;
+        }
+
         if (declarationStatement.getType() == BOOLEAN){
             if (!(value instanceof Boolean)){
                 throw new InterpreterException(declarationStatement.getName(), "Expected a boolean");
