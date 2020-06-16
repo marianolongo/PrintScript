@@ -31,17 +31,16 @@ public class LexerImpl implements Lexer {
 
     private HashMap<String, TokenType> createKeywords(){
         HashMap<String, TokenType> keywords = new HashMap<>();
-        keywords.put("import", IMPORT);
-        keywords.put("else",   ELSE);
-        keywords.put("if",     IF);
-        keywords.put("print",  PRINT);
-        keywords.put("true",   TRUE);
-        keywords.put("false",  FALSE);
-        keywords.put("let",    LET);
-        keywords.put("const",  CONST);
-        keywords.put("string",  STRING);
-        keywords.put("boolean",  BOOLEAN);
-        keywords.put("number",  NUMBER);
+        keywords.put("if", IF);
+        keywords.put("else", ELSE);
+        keywords.put("print", PRINT);
+        keywords.put("true", TRUE);
+        keywords.put("false", FALSE);
+        keywords.put("let", LET);
+        keywords.put("const", CONST);
+        keywords.put("string", STRING);
+        keywords.put("boolean", BOOLEAN);
+        keywords.put("number", NUMBER);
         return keywords;
     }
     public LexerImpl() {

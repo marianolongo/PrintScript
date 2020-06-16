@@ -223,6 +223,9 @@ public class ParserImpl implements Parser {
     }
 
     private Expression primary() throws ParserException {
+        if (checkAndAdvance(FALSE)) return new LiteralExpression(false);
+        if (checkAndAdvance(TRUE)) return new LiteralExpression(true);
+
         if (checkAndAdvance(NUMBER, STRING, BOOLEAN)) {
             return new LiteralExpression(getPrevious().getLiteral());
         }
