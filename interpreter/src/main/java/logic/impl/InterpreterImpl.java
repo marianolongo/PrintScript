@@ -107,11 +107,6 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         return value;
     }
 
-    @Override
-    public Object visit(LogicalExpression logicalExpression) {
-        return null;
-    }
-
     private Object evaluate(Expression expr) {
         return expr.accept(this);
     }
@@ -130,7 +125,6 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
     }
 
     private void checkNumberOperands(Token operator, Object left, Object right) {
-
         if (left instanceof Double && right instanceof Double) return;
         throw new InterpreterException(operator, "Operands must be numbers");
     }

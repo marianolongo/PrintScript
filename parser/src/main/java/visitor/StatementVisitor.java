@@ -1,6 +1,5 @@
 package visitor;
 
-import expression.impl.VariableExpression;
 import statement.impl.*;
 
 public interface StatementVisitor {

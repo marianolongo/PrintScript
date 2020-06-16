@@ -10,5 +10,4 @@ public interface ExpressionVisitor {
     Object visit(LiteralExpression literalExpression);
     Object visit(VariableExpression variableExpression);
     Object visit(AssignmentExpression assignmentExpression);
-    Object visit(LogicalExpression logicalExpression);
 }
