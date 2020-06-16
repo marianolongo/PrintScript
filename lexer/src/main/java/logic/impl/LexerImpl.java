@@ -81,13 +81,12 @@ public class LexerImpl implements Lexer {
             case ';': addToken(SEMICOLON); break;
             case ':': addToken(COLON); break;
             case '*': addToken(STAR); break;
-            case '!': addToken(match('=') ? BANG_EQUAL : BANG); break;
-            case '=': addToken(match('=') ? EQUAL_EQUAL : EQUAL); break;
-            case '<': addToken(match('=') ? LESS_EQUAL : LESS); break;
-            case '>': addToken(match('=') ? GREATER_EQUAL : GREATER); break;
+            case '!': addToken(checkAndAdvance('=') ? BANG_EQUAL : BANG); break;
+            case '=': addToken(checkAndAdvance('=') ? EQUAL_EQUAL : EQUAL); break;
+            case '<': addToken(checkAndAdvance('=') ? LESS_EQUAL : LESS); break;
+            case '>': addToken(checkAndAdvance('=') ? GREATER_EQUAL : GREATER); break;
             case '/':
-                if (match('/')) {
-                    // A comment goes until the end of the line.
+                if (checkAndAdvance('/')) {
                     while (getCurrentChar() != '\n' && !isAtEnd()) advance();
                 } else {
                     addToken(SLASH);
@@ -136,7 +135,7 @@ public class LexerImpl implements Lexer {
                         .buildToken());
     }
 
-    private boolean match(char expected) {
+    private boolean checkAndAdvance(char expected) {
         if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
 
