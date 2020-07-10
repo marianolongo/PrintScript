@@ -33,20 +33,20 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
         Object right = evaluate(binaryExpression.getRight());
 
         switch (binaryExpression.getOperand().getType()) {
-            case BANG_EQUAL:
+            case BANGEQUAL:
                 return !isEqual(left, right);
-            case EQUAL_EQUAL:
+            case EQUALEQUAL:
                 return isEqual(left, right);
             case GREATER:
                 checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left > (double)right;
-            case GREATER_EQUAL:
+            case GREATEREQUAL:
                 checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left >= (double)right;
             case LESS:
                 checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left < (double)right;
-            case LESS_EQUAL:
+            case LESSEQUAL:
                 checkNumberOperands(binaryExpression.getOperand(), left, right);
                 return (double)left <= (double)right;
             case MINUS:
