@@ -31,14 +31,8 @@ public class LexerTests {
         Assert.assertSame(tokens.get(6).getType(), TokenType.SEMICOLON);
     }
 
-    @Test(expected = LexerException.class)
-    public void test_02_unterminatedStringThrowsLexerException(){
-        lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
-                ("let a: string = \"This string does not end;").getBytes())), true, true);
-    }
-
     @Test
-    public void test_03_newLineIsCorrectlyImplemented(){
+    public void test_02_newLineIsCorrectlyImplemented(){
         List<Token> tokens = lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                 ("let a: string = \"This is a test!\"; \n" +
                         "const b: boolean = true;").getBytes())), true, true);
@@ -48,13 +42,13 @@ public class LexerTests {
     }
 
     @Test(expected = LexerException.class)
-    public void test_04_lexerExceptionWhenBooleanIsNotActive(){
+    public void test_03_lexerExceptionWhenBooleanIsNotActive(){
         lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                 ("const b: boolean = true;").getBytes())), false, true);
     }
 
     @Test(expected = LexerException.class)
-    public void test_05_lexerExceptionWhenConstIsNotActive(){
+    public void test_04_lexerExceptionWhenConstIsNotActive(){
         lexer.getTokens(new InputStreamReader(new ByteArrayInputStream(
                 ("const b: boolean = true;").getBytes())), true, false);
     }
