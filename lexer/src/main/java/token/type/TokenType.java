@@ -1,19 +1,41 @@
 package token.type;
 
 public enum TokenType {
-    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, SEMICOLON, COLON,
+    LEFTPAREN,
+    RIGHTPAREN,
+    LEFTBRACE,
+    RIGHTBRACE,
+    SEMICOLON,
+    COLON,
 
     // One or two character tokens.
-    EQUAL, EQUAL_EQUAL, BANG_EQUAL, BANG,
-    GREATER, GREATER_EQUAL,
-    LESS, LESS_EQUAL,
-    MINUS, SLASH, STAR, PLUS,
-    // Literals.
-    IDENTIFIER, STRING, NUMBER, BOOLEAN,
+    EQUALEQUAL,
+    BANGEQUAL,
+    GREATEREQUAL,
+    LESSEQUAL,
+    EQUAL,
+    BANG,
+    GREATER,
+    LESS,
+    MINUS,
+    SLASH,
+    STAR,
+    PLUS,
 
     // Keywords.
-    ELSE, FALSE, IF,
-    PRINT, TRUE, LET, CONST, IMPORT,
+    ELSE,
+    FALSE,
+    IF,
+    PRINT,
+    TRUE,
+    LET,
+    CONST,
 
-    EOF
+    // Literals.
+    STRING,
+    NUMBER,
+    BOOLEAN,
+    IDENTIFIER,
+
+    EOF, NEWLINE
 }

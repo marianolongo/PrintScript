@@ -44,15 +44,15 @@ public class ParserImpl implements Parser {
     private Statement statement() throws ParserException {
         if (checkAndAdvance(IF)) return ifStatement();
         if (checkAndAdvance(PRINT)) return printStatement();
-        if (checkAndAdvance(LEFT_BRACE)) return new BlockStatement(block());
+        if (checkAndAdvance(LEFTBRACE)) return new BlockStatement(block());
 
         return expressionStatement();
     }
 
     private Statement ifStatement() throws ParserException {
-        consume(LEFT_PAREN, "Expect '(' after 'if'");
+        consume(LEFTPAREN, "Expect '(' after 'if'");
         Expression condition = expression();
-        consume(RIGHT_PAREN, "Expect ')' after if condition");
+        consume(RIGHTPAREN, "Expect ')' after if condition");
 
         Statement thenBranch = statement();
         Statement elseBranch = null;
@@ -66,11 +66,11 @@ public class ParserImpl implements Parser {
     private List<Statement> block() throws ParserException {
         List<Statement> statements = new ArrayList<>();
 
-        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+        while (!check(RIGHTBRACE) && !isAtEnd()) {
             statements.add(declaration());
         }
 
-        consume(RIGHT_BRACE, "Expect '}' after block");
+        consume(RIGHTBRACE, "Expect '}' after block");
         return statements;
     }
     private Statement declarationStatement(Token currentToken) throws ParserException {
@@ -133,7 +133,7 @@ public class ParserImpl implements Parser {
     private Expression equality() throws ParserException {
         Expression expr = comparison();
 
-        while (checkAndAdvance(BANG_EQUAL, EQUAL_EQUAL)) {
+        while (checkAndAdvance(BANGEQUAL, EQUALEQUAL)) {
             Token operator = getPrevious();
             Expression right = comparison();
             expr = new BinaryExpression(expr, operator, right);
@@ -179,7 +179,7 @@ public class ParserImpl implements Parser {
     private Expression comparison() throws ParserException {
         Expression expr = addition();
 
-        while (checkAndAdvance(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+        while (checkAndAdvance(GREATER, GREATEREQUAL, LESS, LESSEQUAL)) {
             Token operator = getPrevious();
             Expression right = addition();
             expr = new BinaryExpression(expr, operator, right);
@@ -234,9 +234,9 @@ public class ParserImpl implements Parser {
             return new VariableExpression(getPrevious());
         }
 
-        if (checkAndAdvance(LEFT_PAREN)) {
+        if (checkAndAdvance(LEFTPAREN)) {
             Expression expr = expression();
-            consume(RIGHT_PAREN, "Expect ')' after expression.");
+            consume(RIGHTPAREN, "Expect ')' after expression.");
             return new GroupedExpression(expr);
         }
 

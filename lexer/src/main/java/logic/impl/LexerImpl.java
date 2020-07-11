@@ -10,223 +10,137 @@ import static token.type.TokenType.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 
 public class LexerImpl implements Lexer {
     private List<Token> tokens = new ArrayList<>();
 
-    private int start = 0;
-    private int current = 0;
     private int line = 1;
 
-    private final Map<String, TokenType> keywords = createKeywords();
+    private EnumMap<TokenType, String> lexemeMatchers = new EnumMap<>(TokenType.class);;
 
-    private String source;
-
-    private HashMap<String, TokenType> createKeywords(){
-        HashMap<String, TokenType> keywords = new HashMap<>();
-        keywords.put("if", IF);
-        keywords.put("else", ELSE);
-        keywords.put("print", PRINT);
-        keywords.put("true", TRUE);
-        keywords.put("false", FALSE);
-        keywords.put("let", LET);
-        keywords.put("const", CONST);
-        keywords.put("string", STRING);
-        keywords.put("boolean", BOOLEAN);
-        keywords.put("number", NUMBER);
-        return keywords;
-    }
     public LexerImpl() {
+        addPatterns();
+    }
 
+    private void addPatterns() {
+        lexemeMatchers.put(IF, "if");
+        lexemeMatchers.put(ELSE, "else");
+        lexemeMatchers.put(PRINT, "print");
+        lexemeMatchers.put(TRUE, "true");
+        lexemeMatchers.put(FALSE, "false");
+        lexemeMatchers.put(CONST, "const");
+        lexemeMatchers.put(LET, "let");
+        lexemeMatchers.put(STRING, "string|\\\"([_a-zA-Z0-9 !\\\\/.])*\\\"|'([_a-zA-Z0-9 !\\\\/.])*'");
+        lexemeMatchers.put(BOOLEAN, "boolean");
+        lexemeMatchers.put(NUMBER, "number|-?[0-9.]+");
+        lexemeMatchers.put(LEFTBRACE, "[{]");
+        lexemeMatchers.put(RIGHTBRACE, "[}]");
+        lexemeMatchers.put(LEFTPAREN, "[(]");
+        lexemeMatchers.put(RIGHTPAREN, "[)]");
+        lexemeMatchers.put(SEMICOLON, ";");
+        lexemeMatchers.put(COLON, ":");
+        lexemeMatchers.put(EQUALEQUAL, "==");
+        lexemeMatchers.put(EQUAL, "[=]");
+        lexemeMatchers.put(BANGEQUAL, "!=");
+        lexemeMatchers.put(BANG, "[!]");
+        lexemeMatchers.put(GREATER, "[>]");
+        lexemeMatchers.put(GREATEREQUAL, ">=");
+        lexemeMatchers.put(LESS, "[<]");
+        lexemeMatchers.put(LESSEQUAL, "<=");
+        lexemeMatchers.put(MINUS, "[-]");
+        lexemeMatchers.put(SLASH, "[/]");
+        lexemeMatchers.put(STAR, "[*]");
+        lexemeMatchers.put(PLUS, "[+]");
+        lexemeMatchers.put(NEWLINE, "\n");
+        lexemeMatchers.put(IDENTIFIER, "(?:\\b[_a-zA-Z]|\\B\\$)[_$a-zA-Z0-9]*+");
     }
 
     @Override
-    public List<Token> getTokens(InputStreamReader source) throws LexerException {
-        this.source = new BufferedReader(source).lines().collect(Collectors.joining("\n"));
+    public List<Token> getTokens(InputStreamReader source, boolean booleanActive, boolean constActive) throws LexerException {
+        Matcher matcher = getMatcher(new BufferedReader(source).lines().collect(Collectors.joining("\n")));
 
-        while(!isAtEnd()) {
-            start = current;
-            scanToken();
+        while (matcher.find()) {
+            if(matcher.group().equals("\n")) {
+                line++;
+                continue;
+            }
+            lexemeMatchers.keySet().stream()
+                    .filter(tokenType -> matcher.group(tokenType.name()) != null)
+                    .findFirst()
+                    .map(tokenType -> {
+                        if(tokenType == NUMBER){
+                            if(!matcher.group().equals("number")){
+                                return addToken(tokenType, matcher.group(), this.line, Double.parseDouble(matcher.group()));
+                            }else {
+                                return addToken(tokenType, matcher.group(), this.line,null);
+                            }
+                        }else if(tokenType == STRING){
+                            if(!matcher.group().equals("string")){
+                                return addToken(tokenType, matcher.group(), this.line, matcher.group().replaceAll("[\"']", ""));
+                            }else {
+                                return addToken(tokenType, matcher.group(), this.line,null);
+                            }
+                        }
+                        else {
+                            return addToken(tokenType, matcher.group(), this.line,null);
+                        }
+                    })
+                    .map(token -> this.checkDisabledFeatures(token, constActive, booleanActive))
+                    .orElseThrow(() -> new LexerException("Lexer Error", this.line));
         }
+
         tokens.add(
                 TokenBuilder.createBuilder()
                 .addType(EOF)
-                .addLine(line)
+                .addLine(this.line)
                 .addLexeme("")
                 .addLiteral(null)
                 .buildToken());
         return tokens;
     }
 
-    private boolean isAtEnd() {
-        return current >= source.length();
-    }
-
-    private void scanToken() throws LexerException {
-        char c = advance();
-        switch (c) {
-            case '(': addToken(LEFT_PAREN); break;
-            case ')': addToken(RIGHT_PAREN); break;
-            case '{': addToken(LEFT_BRACE); break;
-            case '}': addToken(RIGHT_BRACE); break;
-            case '-': addToken(MINUS); break;
-            case '+': addToken(PLUS); break;
-            case ';': addToken(SEMICOLON); break;
-            case ':': addToken(COLON); break;
-            case '*': addToken(STAR); break;
-            case '!': addToken(checkAndAdvance('=') ? BANG_EQUAL : BANG); break;
-            case '=': addToken(checkAndAdvance('=') ? EQUAL_EQUAL : EQUAL); break;
-            case '<': addToken(checkAndAdvance('=') ? LESS_EQUAL : LESS); break;
-            case '>': addToken(checkAndAdvance('=') ? GREATER_EQUAL : GREATER); break;
-            case '/':
-                if (checkAndAdvance('/')) {
-                    while (getCurrentChar() != '\n' && !isAtEnd()) advance();
-                } else {
-                    addToken(SLASH);
-                }
-                break;
-            case ' ':
-            case '\r':
-            case '\t':
-                // Ignore whitespace.
-                break;
-
-            case '\n':
-                line++;
-                break;
-            case '\'': stringWithSimple(); break;
-            case '"': stringWithDouble(); break;
-            default:
-                if (isDigit(c)) {
-                    number();
-                } else if (isAlpha(c)) {
-                    identifier();
-                } else {
-                    throw new LexerException("Unexpected " + c, line);
-                }
+    private Token checkDisabledFeatures(Token token, boolean constActive, boolean booleanActive) {
+        if(token.getType() == CONST && !constActive){
+            throw new LexerException("Const is not supported!", line);
         }
-    }
-
-    private char advance() {
-        current++;
-        return source.charAt(current - 1);
-    }
-
-    private void addToken(TokenType type) {
-        addToken(type, null);
-    }
-
-    private void addToken(TokenType type, Object literal) {
-        String text = source.substring(start, current);
-        tokens.add(
-                TokenBuilder
-                        .createBuilder()
-                        .addType(type)
-                        .addLine(line)
-                        .addLexeme(text)
-                        .addLiteral(literal)
-                        .buildToken());
-    }
-
-    private boolean checkAndAdvance(char expected) {
-        if (isAtEnd()) return false;
-        if (source.charAt(current) != expected) return false;
-
-        current++;
-        return true;
-    }
-
-    private char getCurrentChar() {
-        if (isAtEnd()) return '\0';
-        return source.charAt(current);
-    }
-
-    private void stringWithSimple() throws LexerException {
-        while (getCurrentChar() != '\'' && !isAtEnd()) {
-            if (getCurrentChar() == '\n') line++;
-            advance();
+        if(
+                (token.getType() == BOOLEAN |
+                token.getType() == TRUE |
+                token.getType() == FALSE |
+                token.getType() == GREATER |
+                token.getType() == GREATEREQUAL |
+                token.getType() == LESS |
+                token.getType() == LESSEQUAL) && !booleanActive
+        ){
+            throw new LexerException("Boolean is not supported!", line);
         }
-
-        // Unterminated string.
-        if (isAtEnd()) {
-            throw new LexerException("Unterminated string", line);
-        }
-
-        // The closing ".
-        advance();
-
-        // Trim the surrounding quotes.
-        String value = source.substring(start + 1, current - 1);
-        addToken(STRING, value);
+        return token;
     }
 
-    private void stringWithDouble() throws LexerException {
-        while (getCurrentChar() != '"' && !isAtEnd()) {
-            if (getCurrentChar() == '\n') line++;
-            advance();
-        }
-
-        // Unterminated string.
-        if (isAtEnd()) {
-            throw new LexerException("Unterminated string", line);
-        }
-
-        // The closing ".
-        advance();
-
-        // Trim the surrounding quotes.
-        String value = source.substring(start + 1, current - 1);
-        addToken(STRING, value);
+    private Matcher getMatcher(String input) {
+        return Pattern.compile(
+                Arrays.stream(TokenType.values())
+                        .map(tokenType -> String.format("|(?<%s>%s)", tokenType.name(), lexemeMatchers.get(tokenType)))
+                        .collect(Collectors.joining())
+                        .substring(1)
+        ).matcher(input);
     }
 
-    private boolean isDigit(char c) {
-        return c >= '0' && c <= '9';
-    }
+    private Token addToken(TokenType type, String lexeme, Integer line, Object literal) {
+        Token token = TokenBuilder
+                .createBuilder()
+                .addType(type)
+                .addLine(line)
+                .addLexeme(lexeme)
+                .addLiteral(literal)
+                .buildToken();
 
-    private void number() {
-        while (isDigit(getCurrentChar())) advance();
+        tokens.add(token);
 
-        // Look for a fractional part.
-        if (getCurrentChar() == '.' && isDigit(getNextChar())) {
-            // Consume the "."
-            advance();
-
-            while (isDigit(getCurrentChar())) advance();
-        }
-
-        addToken(NUMBER,
-                Double.parseDouble(source.substring(start, current)));
-    }
-
-    private char getNextChar() {
-        if (current + 1 >= source.length()) return '\0';
-        return source.charAt(current + 1);
-    }
-
-    private void identifier() {
-        while (isAlphaNumeric(getCurrentChar())) advance();
-
-        String text = source.substring(start, current);
-
-        TokenType type = keywords.get(text);
-        if (type == null) type = IDENTIFIER;
-        addToken(type);
-    }
-
-    private boolean isAlpha(char c) {
-        return (c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z') ||
-                c == '_';
-    }
-
-    private boolean isAlphaNumeric(char c) {
-        return isAlpha(c) || isDigit(c);
+        return token;
     }
 }

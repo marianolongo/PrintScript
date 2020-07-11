@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface Lexer {
 
-    List<Token> getTokens(InputStreamReader source) throws LexerException;
+    List<Token> getTokens(InputStreamReader source, boolean booleanActive, boolean constActive) throws LexerException;
 }
