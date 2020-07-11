@@ -24,7 +24,7 @@ public class Tar implements Callable<Integer> {
     @CommandLine.Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the archive file")
     File archive;
 
-    @CommandLine.Option(names = {"-v", "--validate"}, description = "Enters in VALIDATION ONLY mode")
+    @CommandLine.Option(names = {"-v", "--validate"}, description = "Activates validation only")
     private  boolean onlyValidate = false;
 
     @CommandLine.Option(names = {"-nb", "--noBoolean"}, description = "Deactivates boolean feature")
@@ -44,6 +44,9 @@ public class Tar implements Callable<Integer> {
         try {
             tokens = lexer.getTokens(new InputStreamReader(new FileInputStream(archive)), booleanActive, constActive);
             statements = parser.parse(tokens);
+            if (onlyValidate) {
+                return 0;
+            }
             interpreter.interpret(statements);
         } catch (LexerException | ParserException | InterpreterException | FileNotFoundException e) {
             e.printStackTrace();
