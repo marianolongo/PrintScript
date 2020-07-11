@@ -1,4 +1,4 @@
-#Pasos a seguir
+# Pasos a seguir
 
 1. Tener un archivo de texto con el codigo
 
@@ -6,7 +6,7 @@
 
 3. Usar el flag -f y el path del archivo
 
-#Comandos
+## Comandos
 
 * -f / --file para agregar el archivo (OBLIGATORIO)
 
