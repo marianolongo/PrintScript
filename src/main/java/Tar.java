@@ -34,9 +34,9 @@ public class Tar implements Callable<Integer> {
         List<Statement> statements;
         try {
             tokens = lexer.getTokens(new InputStreamReader(new FileInputStream(archive)));
-            statements = parser.parse(tokens);
-            interpreter.interpret(statements);
-//            tokens.forEach(System.out::println);
+//            statements = parser.parse(tokens);
+//            interpreter.interpret(statements);
+            tokens.forEach(System.out::println);
         } catch (LexerException | ParserException | InterpreterException | FileNotFoundException e) {
             e.printStackTrace();
             return 1;

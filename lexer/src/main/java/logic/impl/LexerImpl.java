@@ -39,7 +39,7 @@ public class LexerImpl implements Lexer {
         lexemeMatchers.put(LET, "let");
         lexemeMatchers.put(STRING, "string|\\\"([_a-zA-Z0-9 !\\\\/.])*\\\"|'([_a-zA-Z0-9 !\\\\/.])*'");
         lexemeMatchers.put(BOOLEAN, "boolean");
-        lexemeMatchers.put(NUMBER, "^number|-?[0-9.]+");
+        lexemeMatchers.put(NUMBER, "number|-?[0-9.]+");
         lexemeMatchers.put(LEFTBRACE, "[{]");
         lexemeMatchers.put(RIGHTBRACE, "[}]");
         lexemeMatchers.put(LEFTPAREN, "[(]");
@@ -77,7 +77,7 @@ public class LexerImpl implements Lexer {
                     .map(tokenType -> {
                         if(tokenType == NUMBER){
                             if(!matcher.group().equals("number")){
-                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
+                                return addToken(tokenType, matcher.group(), this.line, Double.parseDouble(matcher.group()));
                             }else {
                                 return addToken(tokenType, matcher.group(), this.line,null);
                             }
@@ -87,7 +87,15 @@ public class LexerImpl implements Lexer {
                             }else {
                                 return addToken(tokenType, matcher.group(), this.line,null);
                             }
-                        } else {
+                        }
+//                        else if (tokenType == BOOLEAN) {
+//                            if(!matcher.group().equals("boolean")){
+//                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
+//                            } else {
+//                                return addToken(tokenType, matcher.group(), this.line,Boolean.parseBoolean(matcher.group()));
+//                            }
+//                        }
+                        else {
                             return addToken(tokenType, matcher.group(), this.line,null);
                         }
                     })
