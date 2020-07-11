@@ -1,7 +1,6 @@
 package logic.impl;
 
 import exceptions.LexerException;
-import logic.LexemeMatcher;
 import logic.Lexer;
 import token.Token;
 import token.impl.TokenBuilder;
@@ -15,8 +14,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 public class LexerImpl implements Lexer {
     private List<Token> tokens = new ArrayList<>();
@@ -46,8 +43,8 @@ public class LexerImpl implements Lexer {
         lexemeMatchers.put(RIGHTPAREN, "[)]");
         lexemeMatchers.put(SEMICOLON, ";");
         lexemeMatchers.put(COLON, ":");
-        lexemeMatchers.put(EQUAL, "=");
         lexemeMatchers.put(EQUALEQUAL, "==");
+        lexemeMatchers.put(EQUAL, "[=]");
         lexemeMatchers.put(BANGEQUAL, "!=");
         lexemeMatchers.put(BANG, "[!]");
         lexemeMatchers.put(GREATER, "[>]");
@@ -83,25 +80,17 @@ public class LexerImpl implements Lexer {
                             }
                         }else if(tokenType == STRING){
                             if(!matcher.group().equals("string")){
-                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
+                                return addToken(tokenType, matcher.group(), this.line, matcher.group().replaceAll("[\"']", ""));
                             }else {
                                 return addToken(tokenType, matcher.group(), this.line,null);
                             }
                         }
-//                        else if (tokenType == BOOLEAN) {
-//                            if(!matcher.group().equals("boolean")){
-//                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
-//                            } else {
-//                                return addToken(tokenType, matcher.group(), this.line,Boolean.parseBoolean(matcher.group()));
-//                            }
-//                        }
                         else {
                             return addToken(tokenType, matcher.group(), this.line,null);
                         }
                     })
 //                            .map(token -> this.checkDisabledFeature(token, enabledOptionalFeatures))
 //                            .map(this::checkNewLine)
-//                            .flatMap(this::checkError)
                     .orElseThrow(() -> new LexerException("Lexer Error", this.line));
         }
 

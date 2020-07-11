@@ -9,14 +9,14 @@ public enum TokenType {
     COLON,
 
     // One or two character tokens.
-    EQUAL,
     EQUALEQUAL,
     BANGEQUAL,
+    GREATEREQUAL,
+    LESSEQUAL,
+    EQUAL,
     BANG,
     GREATER,
-    GREATEREQUAL,
     LESS,
-    LESSEQUAL,
     MINUS,
     SLASH,
     STAR,
