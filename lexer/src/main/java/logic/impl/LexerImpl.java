@@ -23,9 +23,7 @@ public class LexerImpl implements Lexer {
 
     private int line = 1;
 
-    private String source;
-
-    private LinkedHashMap<TokenType, String> lexemeMatchers = new LinkedHashMap<>();;
+    private EnumMap<TokenType, String> lexemeMatchers = new EnumMap<>(TokenType.class);;
 
     public LexerImpl() {
         addPatterns();
@@ -39,9 +37,9 @@ public class LexerImpl implements Lexer {
         lexemeMatchers.put(FALSE, "false");
         lexemeMatchers.put(CONST, "const");
         lexemeMatchers.put(LET, "let");
-        lexemeMatchers.put(STRING, "string");
+        lexemeMatchers.put(STRING, "string|\\\"([_a-zA-Z0-9 !\\\\/.])*\\\"|'([_a-zA-Z0-9 !\\\\/.])*'");
         lexemeMatchers.put(BOOLEAN, "boolean");
-        lexemeMatchers.put(NUMBER, "number");
+        lexemeMatchers.put(NUMBER, "^number|-?[0-9.]+");
         lexemeMatchers.put(LEFTBRACE, "[{]");
         lexemeMatchers.put(RIGHTBRACE, "[}]");
         lexemeMatchers.put(LEFTPAREN, "[(]");
@@ -66,25 +64,37 @@ public class LexerImpl implements Lexer {
 
     @Override
     public List<Token> getTokens(InputStreamReader source) throws LexerException {
-        this.source = new BufferedReader(source).lines().collect(Collectors.joining("\n"));
+        Matcher matcher = getMatcher(new BufferedReader(source).lines().collect(Collectors.joining("\n")));
 
-        Matcher matcher = getMatcher(this.source.chars().mapToObj(c -> (char) c));
         while (matcher.find()) {
-            String group = matcher.group();
-            System.out.println(group);
-            tokens.add(
-                    lexemeMatchers.keySet().stream()
-                            .filter(tokenType -> {
-                                System.out.println(tokenType);
-                                return matcher.group(tokenType.name()) != null;
-                            })
-                            .findFirst()
-                            .map(tokenType -> addToken(tokenType, matcher.group(), this.line, matcher.group()))
+            if(matcher.group().equals("\n")) {
+                line++;
+                continue;
+            }
+            lexemeMatchers.keySet().stream()
+                    .filter(tokenType -> matcher.group(tokenType.name()) != null)
+                    .findFirst()
+                    .map(tokenType -> {
+                        if(tokenType == NUMBER){
+                            if(!matcher.group().equals("number")){
+                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
+                            }else {
+                                return addToken(tokenType, matcher.group(), this.line,null);
+                            }
+                        }else if(tokenType == STRING){
+                            if(!matcher.group().equals("string")){
+                                return addToken(tokenType, matcher.group(), this.line, matcher.group());
+                            }else {
+                                return addToken(tokenType, matcher.group(), this.line,null);
+                            }
+                        } else {
+                            return addToken(tokenType, matcher.group(), this.line,null);
+                        }
+                    })
 //                            .map(token -> this.checkDisabledFeature(token, enabledOptionalFeatures))
-                            .map(this::advance)
 //                            .map(this::checkNewLine)
 //                            .flatMap(this::checkError)
-                            .orElseThrow(() -> new LexerException("Lexer Error", this.line)));
+                    .orElseThrow(() -> new LexerException("Lexer Error", this.line));
         }
 
         tokens.add(
@@ -97,22 +107,13 @@ public class LexerImpl implements Lexer {
         return tokens;
     }
 
-    private Matcher getMatcher(Stream<Character> input) {
+    private Matcher getMatcher(String input) {
         return Pattern.compile(
                 Arrays.stream(TokenType.values())
                         .map(tokenType -> String.format("|(?<%s>%s)", tokenType.name(), lexemeMatchers.get(tokenType)))
                         .collect(Collectors.joining())
                         .substring(1)
-        ).matcher(input
-                        .map(Objects::toString)
-                        .collect(Collectors.joining())
-        );
-    }
-
-    private Token advance(Token token) {
-        if(token.getType() == NEWLINE)
-            line++;
-        return token;
+        ).matcher(input);
     }
 
     private Token addToken(TokenType type, String lexeme, Integer line, Object literal) {
