@@ -15,5 +15,5 @@ public enum TokenType {
     ELSE, FALSE, IF,
     PRINT, TRUE, LET, CONST,
 
-    EOF
+    EOF, NEWLINE
 }

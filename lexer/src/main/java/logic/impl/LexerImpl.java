@@ -60,7 +60,7 @@ public class LexerImpl implements Lexer {
         lexemeMatchers.put(SLASH, "[/]");
         lexemeMatchers.put(STAR, "[*]");
         lexemeMatchers.put(PLUS, "[+]");
-        lexemeMatchers.put(EOF, "\n");
+        lexemeMatchers.put(NEWLINE, "\n");
         lexemeMatchers.put(IDENTIFIER, "(?:\\b[_a-zA-Z]|\\B\\$)[_$a-zA-Z0-9]*+");
     }
 
@@ -70,6 +70,8 @@ public class LexerImpl implements Lexer {
 
         Matcher matcher = getMatcher(this.source.chars().mapToObj(c -> (char) c));
         while (matcher.find()) {
+            String group = matcher.group();
+            System.out.println(group);
             tokens.add(
                     lexemeMatchers.keySet().stream()
                             .filter(tokenType -> {
@@ -108,7 +110,8 @@ public class LexerImpl implements Lexer {
     }
 
     private Token advance(Token token) {
-        line++;
+        if(token.getType() == NEWLINE)
+            line++;
         return token;
     }
 

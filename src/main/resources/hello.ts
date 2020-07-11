@@ -1,1 +1,2 @@
-let a: string = "Hello World!";
+let a: boolean = true;
+let b: string  = "hola";
