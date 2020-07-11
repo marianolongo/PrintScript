@@ -1,15 +1,18 @@
 let a: number = 2.0;
-let b: string  = "hola";
-let c: boolean = true;
-let d: boolean = false;
+const b: string  = "hola";
 
 print(a);
 print b;
-print(c);
-print(d);
 
+a = 3;
+print a;
+{
+    let e: string = 'inside block';
+    print e;
 
-if(true) {
+}
+
+if(a >= 3.0) {
     print("Entro");
 } else {
     print("No Entro");

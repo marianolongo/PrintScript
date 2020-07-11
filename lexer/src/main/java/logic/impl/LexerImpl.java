@@ -60,7 +60,7 @@ public class LexerImpl implements Lexer {
     }
 
     @Override
-    public List<Token> getTokens(InputStreamReader source) throws LexerException {
+    public List<Token> getTokens(InputStreamReader source, boolean booleanActive, boolean constActive) throws LexerException {
         Matcher matcher = getMatcher(new BufferedReader(source).lines().collect(Collectors.joining("\n")));
 
         while (matcher.find()) {
@@ -89,8 +89,7 @@ public class LexerImpl implements Lexer {
                             return addToken(tokenType, matcher.group(), this.line,null);
                         }
                     })
-//                            .map(token -> this.checkDisabledFeature(token, enabledOptionalFeatures))
-//                            .map(this::checkNewLine)
+                    .map(token -> this.checkDisabledFeatures(token, constActive, booleanActive))
                     .orElseThrow(() -> new LexerException("Lexer Error", this.line));
         }
 
@@ -102,6 +101,24 @@ public class LexerImpl implements Lexer {
                 .addLiteral(null)
                 .buildToken());
         return tokens;
+    }
+
+    private Token checkDisabledFeatures(Token token, boolean constActive, boolean booleanActive) {
+        if(token.getType() == CONST && !constActive){
+            throw new LexerException("Const is not supported!", line);
+        }
+        if(
+                (token.getType() == BOOLEAN |
+                token.getType() == TRUE |
+                token.getType() == FALSE |
+                token.getType() == GREATER |
+                token.getType() == GREATEREQUAL |
+                token.getType() == LESS |
+                token.getType() == LESSEQUAL) && !booleanActive
+        ){
+            throw new LexerException("Boolean is not supported!", line);
+        }
+        return token;
     }
 
     private Matcher getMatcher(String input) {

@@ -24,6 +24,15 @@ public class Tar implements Callable<Integer> {
     @CommandLine.Option(names = { "-f", "--file" }, paramLabel = "ARCHIVE", description = "the archive file")
     File archive;
 
+    @CommandLine.Option(names = {"-v", "--validate"}, description = "Enters in VALIDATION ONLY mode")
+    private  boolean onlyValidate = false;
+
+    @CommandLine.Option(names = {"-nb", "--noBoolean"}, description = "Deactivates boolean feature")
+    private  boolean booleanActive = true;
+
+    @CommandLine.Option(names = {"-nc", "--noConst"}, description = "Deactivates const feature")
+    private  boolean constActive = true;
+
     private Lexer lexer = new LexerImpl();
     private Parser parser = new ParserImpl();
     private Interpreter interpreter = new InterpreterImpl();
@@ -33,7 +42,7 @@ public class Tar implements Callable<Integer> {
         List<Token> tokens;
         List<Statement> statements;
         try {
-            tokens = lexer.getTokens(new InputStreamReader(new FileInputStream(archive)));
+            tokens = lexer.getTokens(new InputStreamReader(new FileInputStream(archive)), booleanActive, constActive);
             statements = parser.parse(tokens);
             interpreter.interpret(statements);
 //            tokens.forEach(System.out::println);
