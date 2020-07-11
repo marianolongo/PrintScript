@@ -21,6 +21,11 @@ public class InterpreterImpl implements Interpreter, ExpressionVisitor, Statemen
     private Environment environment = new EnvironmentImpl();
 
     @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    @Override
     public void interpret(List<Statement> statements) throws InterpreterException {
         for (Statement statement : statements) {
             statement.accept(this);
